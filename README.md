@@ -8,6 +8,12 @@ To run the program:
 go run main.go
 ```
 
+To test the program:
+
+```
+go test
+```
+
 The CSV file defaults to `problems.csv`, but the filename can be customized via a flag.
 
 The CSV file will be in a format like below, where the first column is a question and the second column in the same row is the answer to that question.
