@@ -85,24 +85,33 @@ func getInput(reader *bufio.Reader, answerCh chan<- string) {
 }
 
 func askQuestions(questionAnswers []QuestionAnswer, timeLimit int) int {
-	score := 0
+	totalScore := 0
 	answerCh := make(chan string)
 	reader := bufio.NewReader(os.Stdin)
 	timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
 
 	for _, questionAnswer := range questionAnswers {
-		fmt.Println(questionAnswer.question)
+		score := askSingleQuestion(questionAnswer, answerCh, reader, timer)
+		if score == -1 {
+			return totalScore
+		}
+		totalScore += score
+	}
+	return totalScore
+}
 
-		go getInput(reader, answerCh)
+func askSingleQuestion(questionAnswer QuestionAnswer, answerCh chan string, reader *bufio.Reader, timer *time.Timer) int {
+	fmt.Println(questionAnswer.question)
 
-		select {
-		case <-timer.C:
-			return score
-		case answer := <-answerCh:
-			if strings.Compare(strings.Trim(strings.ToLower(answer), "\n"), questionAnswer.answer) == 0 {
-				score++
-			}
+	go getInput(reader, answerCh)
+
+	select {
+	case <-timer.C:
+		return -1
+	case answer := <-answerCh:
+		if strings.Compare(strings.Trim(strings.ToLower(answer), "\n"), questionAnswer.answer) == 0 {
+			return 1
 		}
 	}
-	return score
+	return 0
 }
