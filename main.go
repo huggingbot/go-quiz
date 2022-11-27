@@ -76,7 +76,7 @@ func shuffleQuestions(questionAnswers []QuestionAnswer) []QuestionAnswer {
 	return questionAnswers
 }
 
-func getInput(reader *bufio.Reader, answerCh chan<- string) {
+var getInput = func(reader *bufio.Reader, answerCh chan<- string) {
 	result, err := reader.ReadString('\n')
 	if err != nil {
 		log.Fatal("Error reading input string", "\n", err)
