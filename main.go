@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -19,7 +20,10 @@ type QuestionAnswer struct {
 
 func main() {
 	filename, timeLimit, shuffle := readArgs()
-	questionAnswers := readCsvFile(filename)
+	file := openFile(filename)
+	defer file.Close()
+
+	questionAnswers := readCsvFile(file)
 	if shuffle {
 		questionAnswers = shuffleQuestions(questionAnswers)
 	}
@@ -36,17 +40,19 @@ func readArgs() (string, int, bool) {
 	return *filePtr, *timeLimitPtr, *shufflePtr
 }
 
-func readCsvFile(filename string) []QuestionAnswer {
+func openFile(filename string) *os.File {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal("Error opening file for file " + filename, "\n", err)
 	}
-	defer file.Close()
+	return file
+}
 
+func readCsvFile(file io.Reader) []QuestionAnswer {
 	csvReader := csv.NewReader(file)
 	records, err := csvReader.ReadAll()
 	if err != nil {
-		log.Fatal("Error parsing file as CSV for file " + filename, "\n", err)
+		log.Fatal("Error parsing file as CSV", "\n", err)
 	}
 
 	questionAnswers := []QuestionAnswer{}
